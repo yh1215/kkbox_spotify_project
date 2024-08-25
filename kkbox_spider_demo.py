@@ -1,3 +1,4 @@
+# extract to one csv file
 import pandas as pd
 import requests
 import re
@@ -46,49 +47,41 @@ def get_data(date, cate=None):
         return daily_data
     return []
 
+# 設置日期範圍
+start_date = datetime(2021, 1, 1)
+end_date = datetime(2021, 1, 31)
 
-def scrape_kkbox_data(start_date, end_date, categories=None):
-    if categories is None:
-        categories = [None, '390', '308', '314', '304', '320']
+# 確保輸出目錄存在
+os.makedirs('kkbox_data', exist_ok=True)
 
-    # 確保輸出目錄存在
-    os.makedirs('kkbox_data', exist_ok=True)
+# 定義要爬取的類別
+categories = [None, '390', '308', '314', '304', '320']
 
-    # 收集所有数据
-    all_data = []
+# 收集所有数据
+all_data = []
 
-    # 爬取每一天的數據
-    current_date = start_date
-    while current_date <= end_date:
-        date_str = current_date.strftime('%Y-%m-%d')
+# 爬取每一天的數據
+current_date = start_date
+while current_date <= end_date:
+    date_str = current_date.strftime('%Y-%m-%d')
+    
+    for cate in categories:
+        print(f"爬取 {date_str} 的數據，類別: {cate if cate else 'mandarin'}...")
+
+        daily_data = get_data(date_str, cate)
         
-        for cate in categories:
-            print(f"爬取 {date_str} 的數據，類別: {cate if cate else 'mandarin'}...")
+        if daily_data:
+            all_data.extend(daily_data)
+        else:
+            print(f"無法獲取 {date_str} 的數據，類別: {cate if cate else 'mandarin'}")
 
-            daily_data = get_data(date_str, cate)
-            
-            if daily_data:
-                all_data.extend(daily_data)
-            else:
-                print(f"無法獲取 {date_str} 的數據，類別: {cate if cate else 'mandarin'}")
+    current_date += timedelta(days=1)
 
-        current_date += timedelta(days=1)
+# 將所有數據轉換為DataFrame
+df = pd.DataFrame(all_data)
 
-    # 將所有數據轉換為DataFrame
-    df = pd.DataFrame(all_data)
+# 保存為CSV文件
+csv_filename = "kkbox_data/kkbox_data.csv"
+df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
 
-    # 保存為CSV文件
-    csv_filename = "kkbox_data/kkbox_data.csv"
-    df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
-
-    print(f"保存數據到 {csv_filename} 完成！")
-    
-    return df
-
-if __name__ == "__main__":
-    # 設置日期範圍
-    start_date = datetime(2021, 1, 1)
-    end_date = datetime(2021, 1, 31)
-    
-    # 執行爬蟲
-    scrape_kkbox_data(start_date, end_date)
+print(f"保存數據到 {csv_filename} 完成！")
