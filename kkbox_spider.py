@@ -76,12 +76,6 @@ def scrape_kkbox_data(start_date, end_date, categories=None):
 
     # 將所有數據轉換為DataFrame
     df = pd.DataFrame(all_data)
-
-    # 保存為CSV文件
-    csv_filename = "kkbox_data/kkbox_data.csv"
-    df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
-
-    print(f"保存數據到 {csv_filename} 完成！")
     
     return df
 
