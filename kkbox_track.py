@@ -18,8 +18,9 @@ def process_tracks(df):
     from tqdm import tqdm
     import time
     import pandas as pd
+    from opencc import OpenCC
 
-
+    cc = OpenCC('s2t')
     # 創建一個列表來存儲所有歌曲的數據
     all_tracks = []
 
@@ -35,7 +36,7 @@ def process_tracks(df):
             # 提取每首歌曲的信息
             for track in track_data['data']:
                 all_tracks.append({
-                    'name': track['name'],
+                    'name': cc.convert(track['name']),
                     'id': track['id'],
                     'duration': track['duration'],
                     'track_number': track['track_number'],
